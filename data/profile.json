@@ -11,8 +11,8 @@
     "currentTitle": "Data Analyst",
     "yearsOfExperience": 0.5,
     "noticePeriodDays": 15,
-    "currentCtcLakhs": 6,
-    "expectedCtcLakhs": 9
+    "currentCtcLakhs": 4.8,
+    "expectedCtcLakhs": 5
   },
   "preferences": {
     "targetRoles": [
@@ -65,7 +65,12 @@
     "The Data Analyst Course: Complete Data Analyst Bootcamp | Udemy, 2024",
     "Data Science and Analytics | NASSCOM, 2023"
   ],
-  "languages": ["English", "Hindi", "Tulu", "Marathi"],
+  "languages": [
+    "English",
+    "Hindi",
+    "Tulu",
+    "Marathi"
+  ],
   "emailAlerts": {
     "enabled": true,
     "recipient": "nandiniddd16@gmail.com",

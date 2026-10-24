@@ -563,9 +563,15 @@ async function openTailorModal(jobId) {
 }
 
 function openDirectJobUrl() {
-  if (appState.selectedJobForModal && appState.selectedJobForModal.directUrl) {
-    window.open(appState.selectedJobForModal.directUrl, '_blank');
+  const job = appState.selectedJobForModal || currentAssistantJob;
+  if (job) {
+    const url = job.directUrl || job.applyUrl;
+    if (url && url !== '#') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
   }
+  showToast('Direct job link not available.');
 }
 
 // Pipeline & Kanban
@@ -729,7 +735,7 @@ function escapeHtml(str) {
 
 function escapeAttr(str) {
   if (!str) return '';
-  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // Send Test Job Digest Email

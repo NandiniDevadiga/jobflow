@@ -10,9 +10,9 @@
     "currentCompany": "Vastu Housing Finance",
     "currentTitle": "Data Analyst",
     "yearsOfExperience": 0.5,
-    "noticePeriodDays": 15,
+    "noticePeriodDays": 30,
     "currentCtcLakhs": 4.8,
-    "expectedCtcLakhs": 5
+    "expectedCtcLakhs": 7
   },
   "preferences": {
     "targetRoles": [
@@ -24,15 +24,13 @@
       "Junior Data Scientist"
     ],
     "targetLocations": [
-      "Mumbai, India",
+      "Anywhere in India (Mumbai, Bengaluru, Pune, Hyderabad, Gurgaon, Remote)",
+      "Dubai, United Arab Emirates",
       "Netherlands",
       "Singapore",
-      "Spain",
-      "Italy",
       "Germany",
-      "Dubai, United Arab Emirates",
-      "Remote Worldwide",
-      "London, United Kingdom"
+      "London, United Kingdom",
+      "Remote Worldwide"
     ],
     "jobType": "Full-time / Entry Level / Graduate",
     "workplaceType": "On-site, Hybrid, or Remote",

@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const { searchAllJobs } = require('./services/jobScraper');
-const { calculateJobMatch, generateCoverLetter, generateScreeningAnswers } = require('./services/matcher');
+const { calculateJobMatch, generateCoverLetter, generateScreeningAnswers, generateTailoredResume } = require('./services/matcher');
 const { launchBrowserAssistant } = require('./services/automation');
 const { sendJobDigestEmail, initScheduler } = require('./services/emailService');
 
@@ -110,12 +110,14 @@ app.post('/api/jobs/tailor', (req, res) => {
 
     const coverLetter = generateCoverLetter(profile, job);
     const screeningAnswers = generateScreeningAnswers(profile, job);
+    const tailoredResume = generateTailoredResume(profile, job);
     const matchAnalysis = calculateJobMatch(profile, job);
 
     res.json({
       success: true,
       coverLetter,
       screeningAnswers,
+      tailoredResume,
       matchAnalysis
     });
   } catch (err) {

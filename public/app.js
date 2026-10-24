@@ -483,14 +483,14 @@ function copyCandidateDetails() {
     `Full Name: ${p.fullName || 'Nandini Devadiga'}`,
     `Email: ${p.email || 'nandiniddd16@gmail.com'}`,
     `Phone: ${p.phone || '+91 9372568518'}`,
-    `Location: ${p.location || 'Mumbai, India'}`,
+    `Location: ${p.location || 'Mumbai, India (Open to Relocate Anywhere in India & Abroad)'}`,
     `LinkedIn: ${p.linkedIn || 'https://www.linkedin.com/in/nandini-deepa'}`,
     `GitHub: ${p.github || 'https://github.com/NandiniDevadiga'}`,
     `Current Role: ${p.currentTitle || 'Data Analyst'} at ${p.currentCompany || 'Vastu Housing Finance'}`,
-    `Experience: ${p.yearsOfExperience || 0.5} years | Notice Period: ${p.noticePeriodDays || 15} days`,
-    `Current CTC: ${p.currentCtcLakhs || 4.8} LPA | Expected CTC: ${p.expectedCtcLakhs || 5} LPA`,
+    `Experience: 0.5+ years | Notice Period: 30 days (Negotiable)`,
+    `Current CTC: ${p.currentCtcLakhs || 4.8} LPA | Expected CTC: 7 - 8.5 LPA (Flexible / Open)`,
     `Education: Master of Science in Data Science & AI (Middlesex University Dubai) | B.Tech EXTC (CGPA 8.86)`,
-    `Key Skills: Python, SQL, Power BI, DAX, Power Query, Pandas, KNIME, Machine Learning, Tableau`
+    `Key Skills: Power BI, DAX, SQL, Python (Pandas/NumPy), Star Schema, KPI Dashboards, ETL, Advanced Excel`
   ].join('\n');
 
   navigator.clipboard.writeText(text).then(() => {
@@ -518,7 +518,7 @@ async function openTailorModal(jobId) {
   document.getElementById('tailorModalTitle').textContent = `AI Tailored Application: ${job.title}`;
   document.getElementById('tailorModalCompany').textContent = `${job.company} • ${job.location}`;
   document.getElementById('modalMatchScore').textContent = `${job.matchScore}% Match`;
-  document.getElementById('modalMatchedSkills').textContent = (job.matchedSkills || []).join(', ') || 'Python, SQL, Power BI, DAX';
+  document.getElementById('modalMatchedSkills').textContent = (job.matchedSkills || []).join(', ') || 'Power BI, SQL, Python, DAX';
   document.getElementById('modalMissingSkills').textContent = (job.missingSkills || []).join(', ') || 'None identified';
 
   const modal = document.getElementById('tailorModal');
@@ -535,6 +535,31 @@ async function openTailorModal(jobId) {
     if (data.success) {
       document.getElementById('modalCoverLetterText').value = data.coverLetter;
 
+      // Populate Tailored Resume ATS points
+      if (data.tailoredResume) {
+        const tr = data.tailoredResume;
+        const kwBox = document.getElementById('modalResumeKeywordsBox');
+        if (kwBox && tr.topKeywordsToInclude) {
+          kwBox.innerHTML = tr.topKeywordsToInclude.map(kw => `<span class="skill-tag matched" style="font-size:0.75rem;">✓ ${escapeHtml(kw)}</span>`).join('');
+        }
+
+        const resumeFormatted = [
+          `[TARGET RESUME HEADLINE]`,
+          tr.targetHeadline,
+          ``,
+          `[TAILORED PROFESSIONAL SUMMARY]`,
+          tr.professionalSummary,
+          ``,
+          `[ATS-MATCHED EXPERIENCE BULLETS (Ready to paste into Resume)]`,
+          ...tr.tailoredBullets.map(b => `• ${b}`)
+        ].join('\n');
+
+        const resumeBulletsEl = document.getElementById('modalResumeBulletsText');
+        if (resumeBulletsEl) {
+          resumeBulletsEl.value = resumeFormatted;
+        }
+      }
+
       // Populate Q&A
       const qa = data.screeningAnswers || {};
       const qaGrid = document.getElementById('modalQaGrid');
@@ -544,16 +569,16 @@ async function openTailorModal(jobId) {
           <div class="qa-a">${escapeHtml(qa.whyWorkHere)}</div>
         </div>
         <div class="qa-item">
-          <div class="qa-q">Q: What is your educational & analytical background?</div>
-          <div class="qa-a">${escapeHtml(qa.highestEducation || 'MSc in Data Science & Artificial Intelligence (Degree Completed, awaiting certificate)')}</div>
-        </div>
-        <div class="qa-item">
-          <div class="qa-q">Q: What is your notice period and earliest start date?</div>
-          <div class="qa-a">${escapeHtml(qa.noticePeriod)}</div>
+          <div class="qa-q">Q: What is your notice period and current salary?</div>
+          <div class="qa-a">Notice Period: <strong>${escapeHtml(qa.noticePeriod)}</strong> &bull; Current CTC: <strong>${escapeHtml(qa.currentSalary || '4.8 LPA')}</strong></div>
         </div>
         <div class="qa-item">
           <div class="qa-q">Q: What is your expected salary / compensation?</div>
           <div class="qa-a">${escapeHtml(qa.expectedSalary)}</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">Q: What is your educational & analytical background?</div>
+          <div class="qa-a">${escapeHtml(qa.highestEducation || 'MSc in Data Science & Artificial Intelligence (Degree Completed, awaiting certificate)')}</div>
         </div>
       `;
     }

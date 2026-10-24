@@ -115,16 +115,39 @@ function generateScreeningAnswers(userProfile, job) {
   const p = userProfile.personal || {};
   return {
     whyWorkHere: `I admire ${job.company}'s data-driven innovation and culture. The ${job.title} role directly aligns with my hands-on background in Power BI dashboard engineering, custom DAX measures, and Python/SQL analytics.`,
-    noticePeriod: `${p.noticePeriodDays || 15} days (${p.noticePeriodDays <= 15 ? 'Immediate / Short notice' : 'Flexible/Negotiable'})`,
-    expectedSalary: `Competitive / Negotiable (${job.salary || 'Industry Standard'})`,
+    noticePeriod: `${p.noticePeriodDays || 30} days (Standard 30 Days Notice / Negotiable)`,
+    currentSalary: `${p.currentCtcLakhs || 4.8} LPA`,
+    expectedSalary: `${p.expectedCtcLakhs || 7} - 8.5 LPA (Flexible / Open to discussion based on standard industry benchmarks)`,
     currentLocation: p.location || 'Mumbai, India',
-    highestEducation: 'Master of Science in Data Science and Artificial Intelligence (Degree Completed, awaiting certificate)',
-    relevantExperienceYears: 'Data Analyst at Vastu Housing Finance + internship at HDFC AMC + MSc in Data Science & AI.'
+    highestEducation: 'Master of Science in Data Science and Artificial Intelligence (Middlesex University Dubai | Degree Completed, awaiting degree certificate)',
+    relevantExperienceYears: 'Data Analyst at Vastu Housing Finance (6 months) + internship at HDFC AMC + MSc in Data Science & AI.'
+  };
+}
+
+/**
+ * Generate job-tailored resume summary and ATS keyword bullets
+ */
+function generateTailoredResume(userProfile, job) {
+  const role = job.title || 'Data Analyst';
+  const company = job.company || 'Enterprise';
+  const match = calculateJobMatch(userProfile, job);
+  const matched = (match.matchedSkills && match.matchedSkills.length > 0) ? match.matchedSkills : ['Power BI', 'SQL', 'DAX', 'Python', 'Excel', 'Data Modeling'];
+
+  return {
+    targetHeadline: `${role} | MSc Data Science & AI | Power BI, SQL, Python, DAX`,
+    professionalSummary: `Results-driven Data Analyst with an MSc in Data Science & Artificial Intelligence (Middlesex University Dubai) and hands-on experience at Vastu Housing Finance and HDFC AMC. Specialized in end-to-end Power BI dashboard engineering, custom DAX metrics, SQL query optimization, and predictive modeling in Python, tailored specifically for high-impact decision support at ${company}.`,
+    topKeywordsToInclude: matched,
+    tailoredBullets: [
+      `Designed and deployed centralized Power BI executive dashboards utilizing Star Schema architecture, dynamic slicers, and 10+ custom DAX measures for KPI performance tracking.`,
+      `Automated SQL data transformation workflows and ETL pipelines in KNIME, eliminating manual spreadsheet overhead and accelerating reporting turnaround by 40%.`,
+      `Executed exploratory data analysis and predictive modeling using Python (Pandas, NumPy, scikit-learn), extracting actionable trends from complex multi-source datasets.`
+    ]
   };
 }
 
 module.exports = {
   calculateJobMatch,
   generateCoverLetter,
-  generateScreeningAnswers
+  generateScreeningAnswers,
+  generateTailoredResume
 };

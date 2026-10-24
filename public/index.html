@@ -494,12 +494,25 @@
         </div>
 
         <div class="automation-instruction-box">
-          <p><strong>💡 Mode: Interactive Review & Assist</strong></p>
-          <p>A browser window will open, navigate to the target job, and auto-populate your contact details, portfolio links, and career information. You can review the details on screen and make final confirmation.</p>
+          <p><strong>💡 Mode: Smart Job Application Assistant</strong></p>
+          <p>Your candidate profile, contact details, and tailored responses are ready. Use the quick actions below to submit your application directly on your phone or computer.</p>
+        </div>
+
+        <div class="assistant-quick-actions" style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1rem;">
+          <a id="assistantDirectLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex:1; min-width:180px; text-align:center; text-decoration:none; padding:0.6rem 1rem; font-weight:600;">
+            🚀 Open Job Application Page
+          </a>
+          <button type="button" class="btn btn-secondary" onclick="copyCandidateDetails()" style="flex:1; min-width:140px;">
+            📋 Copy Profile Info
+          </button>
+          <button type="button" class="btn btn-secondary" id="assistantOpenTailorBtn" style="flex:1; min-width:140px;">
+            📝 AI Cover Letter
+          </button>
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn btn-secondary" id="assistantMarkAppliedBtn" onclick="markAssistantJobApplied()">✓ Mark as Applied</button>
         <button class="btn btn-secondary" onclick="closeModal('assistantModal')">Done</button>
       </div>
     </div>

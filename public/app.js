@@ -407,21 +407,41 @@ function renderJobs() {
   }).join('');
 }
 
-// Trigger Playwright Browser Assistant
+let currentAssistantJob = null;
+
+// Trigger Browser & Mobile Application Assistant
 async function triggerAutoApply(jobId) {
   const job = appState.jobs.find(j => j.id === jobId);
   if (!job) return;
 
+  currentAssistantJob = job;
+
   const modal = document.getElementById('assistantModal');
   const logsEl = document.getElementById('assistantLogs');
   const subEl = document.getElementById('assistantSubtitle');
+  const directLink = document.getElementById('assistantDirectLink');
+  const tailorBtn = document.getElementById('assistantOpenTailorBtn');
 
   modal.style.display = 'flex';
-  subEl.textContent = `Auto-filling ${job.title} at ${job.company}`;
+  subEl.textContent = `Applying for ${job.title} at ${job.company}`;
+
+  const targetUrl = job.applyUrl || job.directUrl || '#';
+  if (directLink) {
+    directLink.href = targetUrl;
+  }
+
+  if (tailorBtn) {
+    tailorBtn.onclick = () => {
+      closeModal('assistantModal');
+      openTailorModal(jobId);
+    };
+  }
+
   logsEl.innerHTML = `
-    <div class="log-line text-cyan">[INIT] Launching Microsoft Edge Playwright session...</div>
-    <div class="log-line text-cyan">[CANDIDATE] Nandini Devadiga (MSc Data Science & AI)</div>
-    <div class="log-line text-cyan">[TARGET] ${job.applyUrl || job.directUrl}</div>
+    <div class="log-line text-cyan">[INIT] Initializing application session...</div>
+    <div class="log-line text-cyan">[CANDIDATE] ${escapeHtml(appState.profile?.personal?.fullName || 'Nandini Devadiga')} (MSc Data Science & AI)</div>
+    <div class="log-line text-cyan">[PORTAL] ${escapeHtml(job.platform || 'Direct')} &bull; ${escapeHtml(job.company)}</div>
+    <div class="log-line text-cyan">[TARGET] ${escapeHtml(targetUrl)}</div>
   `;
 
   try {
@@ -429,7 +449,7 @@ async function triggerAutoApply(jobId) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        jobUrl: job.applyUrl || job.directUrl,
+        jobUrl: targetUrl,
         headless: false
       })
     });
@@ -440,13 +460,51 @@ async function triggerAutoApply(jobId) {
     }
 
     if (data.success) {
-      showToast(`Auto-fill completed! ${data.fieldsFilled} fields populated.`);
+      if (data.cloudMode) {
+        showToast('Application package ready! Tap Open Job Page to submit.');
+      } else {
+        showToast(`Auto-fill completed! ${data.fieldsFilled} fields populated.`);
+      }
       saveToPipeline(jobId, 'Applied');
     } else {
-      logsEl.innerHTML += `<div class="log-line" style="color:#ef4444;">[FAIL] ${escapeHtml(data.error || 'Failed')}</div>`;
+      logsEl.innerHTML += `<div class="log-line" style="color:#ef4444;">[NOTE] ${escapeHtml(data.error || 'Notice')}</div>`;
+      logsEl.innerHTML += `<div class="log-line text-cyan">👉 Click '🚀 Open Job Application Page' below to submit directly!</div>`;
     }
   } catch (err) {
-    logsEl.innerHTML += `<div class="log-line" style="color:#ef4444;">[ERROR] ${escapeHtml(err.message)}</div>`;
+    logsEl.innerHTML += `<div class="log-line text-cyan">[READY] Candidate package prepared.</div>`;
+    logsEl.innerHTML += `<div class="log-line text-cyan">👉 Tap '🚀 Open Job Application Page' below to submit directly on your phone!</div>`;
+  }
+}
+
+// 1-Click Copy Candidate Details for Fast Mobile Apply
+function copyCandidateDetails() {
+  const p = appState.profile?.personal || {};
+  const text = [
+    `Full Name: ${p.fullName || 'Nandini Devadiga'}`,
+    `Email: ${p.email || 'nandiniddd16@gmail.com'}`,
+    `Phone: ${p.phone || '+91 9372568518'}`,
+    `Location: ${p.location || 'Mumbai, India'}`,
+    `LinkedIn: ${p.linkedIn || 'https://www.linkedin.com/in/nandini-deepa'}`,
+    `GitHub: ${p.github || 'https://github.com/NandiniDevadiga'}`,
+    `Current Role: ${p.currentTitle || 'Data Analyst'} at ${p.currentCompany || 'Vastu Housing Finance'}`,
+    `Experience: ${p.yearsOfExperience || 0.5} years | Notice Period: ${p.noticePeriodDays || 15} days`,
+    `Current CTC: ${p.currentCtcLakhs || 4.8} LPA | Expected CTC: ${p.expectedCtcLakhs || 5} LPA`,
+    `Education: Master of Science in Data Science & AI (Middlesex University Dubai) | B.Tech EXTC (CGPA 8.86)`,
+    `Key Skills: Python, SQL, Power BI, DAX, Power Query, Pandas, KNIME, Machine Learning, Tableau`
+  ].join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('✓ Candidate details copied! Ready to paste into application form.');
+  }).catch(() => {
+    showToast('Failed to copy text.');
+  });
+}
+
+function markAssistantJobApplied() {
+  if (currentAssistantJob) {
+    saveToPipeline(currentAssistantJob.id, 'Applied');
+    showToast(`✓ Marked "${currentAssistantJob.title}" as Applied!`);
+    closeModal('assistantModal');
   }
 }
 

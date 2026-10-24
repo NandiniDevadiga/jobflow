@@ -12,7 +12,8 @@
     "yearsOfExperience": 0.5,
     "noticePeriodDays": 30,
     "currentCtcLakhs": 4.8,
-    "expectedCtcLakhs": 7
+    "expectedCtcLakhs": 5.5,
+    "expectedSalaryText": "5 to 6 LPA"
   },
   "preferences": {
     "targetRoles": [

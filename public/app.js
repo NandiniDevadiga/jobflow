@@ -387,18 +387,18 @@ function renderJobs() {
         </div>
 
         <div class="job-actions-bar">
-          <button class="btn btn-auto-apply" onclick="triggerAutoApply('${escapeAttr(job.id)}')">
-            ⚡ Auto-Fill & Assist
+          <button class="btn btn-primary" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); font-weight: 600;" onclick="downloadTailoredResumePdf('${escapeAttr(job.id)}', this)">
+            📥 Tailored Resume (PDF)
           </button>
           <div class="card-secondary-actions">
-            <button class="btn btn-secondary" title="Tailored Cover Letter & Screening Q&A" onclick="openTailorModal('${escapeAttr(job.id)}')">
-              📝 AI Tailor
-            </button>
-            <a href="${escapeAttr(job.directUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" title="Open Job in New Tab">
-              🌐 Direct
+            <a href="${escapeAttr(job.directUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" title="Open Job Application in New Tab">
+              🌐 Apply on Portal
             </a>
-            <button class="btn btn-secondary ${isAlreadyTracked ? 'active' : ''}" title="${isAlreadyTracked ? 'Already Saved' : 'Save to Pipeline'}" onclick="saveToPipeline('${escapeAttr(job.id)}')">
-              ${isAlreadyTracked ? '✓' : '📌'}
+            <button class="btn btn-secondary" title="View Tailored Cover Letter & Screening Q&A" onclick="openTailorModal('${escapeAttr(job.id)}')">
+              📝 Cover Letter & Q&A
+            </button>
+            <button class="btn btn-secondary ${isAlreadyTracked ? 'active' : ''}" title="${isAlreadyTracked ? 'Saved in Pipeline' : 'Save to Pipeline'}" onclick="saveToPipeline('${escapeAttr(job.id)}')">
+              ${isAlreadyTracked ? '✓ Saved' : '📌 Save'}
             </button>
           </div>
         </div>
@@ -407,72 +407,162 @@ function renderJobs() {
   }).join('');
 }
 
-let currentAssistantJob = null;
-
-// Trigger Browser & Mobile Application Assistant
-async function triggerAutoApply(jobId) {
+// 1-Tap ATS Tailored Resume PDF Generator
+async function downloadTailoredResumePdf(jobId, btnElement) {
   const job = appState.jobs.find(j => j.id === jobId);
   if (!job) return;
 
-  currentAssistantJob = job;
-
-  const modal = document.getElementById('assistantModal');
-  const logsEl = document.getElementById('assistantLogs');
-  const subEl = document.getElementById('assistantSubtitle');
-  const directLink = document.getElementById('assistantDirectLink');
-  const tailorBtn = document.getElementById('assistantOpenTailorBtn');
-
-  modal.style.display = 'flex';
-  subEl.textContent = `Applying for ${job.title} at ${job.company}`;
-
-  const targetUrl = job.applyUrl || job.directUrl || '#';
-  if (directLink) {
-    directLink.href = targetUrl;
+  const originalText = btnElement ? btnElement.innerHTML : '';
+  if (btnElement) {
+    btnElement.disabled = true;
+    btnElement.innerHTML = '⏳ Generating PDF...';
   }
 
-  if (tailorBtn) {
-    tailorBtn.onclick = () => {
-      closeModal('assistantModal');
-      openTailorModal(jobId);
-    };
-  }
-
-  logsEl.innerHTML = `
-    <div class="log-line text-cyan">[INIT] Initializing application session...</div>
-    <div class="log-line text-cyan">[CANDIDATE] ${escapeHtml(appState.profile?.personal?.fullName || 'Nandini Devadiga')} (MSc Data Science & AI)</div>
-    <div class="log-line text-cyan">[PORTAL] ${escapeHtml(job.platform || 'Direct')} &bull; ${escapeHtml(job.company)}</div>
-    <div class="log-line text-cyan">[TARGET] ${escapeHtml(targetUrl)}</div>
-  `;
+  showToast(`Generating tailored ATS resume for ${job.company}...`);
 
   try {
-    const res = await fetch('/api/apply/launch-assistant', {
+    const res = await fetch('/api/jobs/tailor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobUrl: targetUrl,
-        headless: false
-      })
+      body: JSON.stringify({ job })
     });
-
     const data = await res.json();
-    if (data.logs && Array.isArray(data.logs)) {
-      logsEl.innerHTML = data.logs.map(l => `<div class="log-line">${escapeHtml(l)}</div>`).join('');
-    }
+    const tailored = data.tailoredResume || {};
+    const p = appState.profile?.personal || {};
 
-    if (data.success) {
-      if (data.cloudMode) {
-        showToast('Application package ready! Tap Open Job Page to submit.');
-      } else {
-        showToast(`Auto-fill completed! ${data.fieldsFilled} fields populated.`);
-      }
-      saveToPipeline(jobId, 'Applied');
+    const companySafe = (job.company || 'Company').replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `Nandini_Devadiga_Resume_${companySafe}.pdf`;
+
+    const bulletsHtml = (tailored.tailoredBullets || [
+      'Designed and deployed centralized Power BI executive dashboards utilizing Star Schema architecture, dynamic slicers, and 10+ custom DAX measures for KPI performance tracking.',
+      'Automated SQL data transformation workflows and ETL pipelines in KNIME, eliminating manual spreadsheet overhead and accelerating reporting turnaround by 40%.',
+      'Executed exploratory data analysis and predictive modeling using Python (Pandas, NumPy, scikit-learn), extracting actionable trends from complex multi-source datasets.'
+    ]).map(b => `<li style="margin-bottom: 5px; color: #1e293b; line-height: 1.45;">${escapeHtml(b)}</li>`).join('');
+
+    const resumeHtml = `
+      <div id="atsResumeDoc" style="font-family: Arial, Helvetica, sans-serif; color: #111; padding: 22px 28px; background: #fff; width: 100%; max-width: 800px; box-sizing: border-box; font-size: 10pt; line-height: 1.4;">
+        <!-- Header -->
+        <div style="text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 12px;">
+          <h1 style="margin: 0; font-size: 19pt; font-weight: 800; letter-spacing: 0.5px; color: #0f172a; text-transform: uppercase;">${escapeHtml(p.fullName || 'NANDINI DEVADIGA')}</h1>
+          <div style="font-size: 10.5pt; color: #2563eb; font-weight: 700; margin: 4px 0;">${escapeHtml(job.title)} &bull; Data Analyst</div>
+          <div style="font-size: 9pt; color: #475569; margin-top: 3px;">
+            ${escapeHtml(p.location || 'Mumbai, India')} &bull; +91 9372568518 &bull; ${escapeHtml(p.email || 'nandiniddd16@gmail.com')}
+          </div>
+          <div style="font-size: 9pt; color: #2563eb; margin-top: 2px;">
+            <a href="${escapeHtml(p.linkedIn || 'https://www.linkedin.com/in/nandini-deepa')}" style="color: #2563eb; text-decoration: none;">LinkedIn Profile</a> &bull;
+            <a href="${escapeHtml(p.github || 'https://github.com/NandiniDevadiga')}" style="color: #2563eb; text-decoration: none;">GitHub Projects</a>
+          </div>
+        </div>
+
+        <!-- Professional Summary -->
+        <div style="margin-bottom: 11px;">
+          <div style="font-size: 9.5pt; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; letter-spacing: 0.5px;">Professional Summary</div>
+          <p style="margin: 0; font-size: 9pt; color: #334155; text-align: justify; line-height: 1.45;">
+            ${escapeHtml(tailored.professionalSummary || 'Results-driven Data Analyst with an MSc in Data Science & Artificial Intelligence (Middlesex University Dubai) and hands-on experience at Vastu Housing Finance and HDFC AMC. Specialized in end-to-end Power BI dashboard engineering, custom DAX metrics, SQL query optimization, and predictive modeling in Python, tailored specifically for high-impact decision support.')}
+          </p>
+        </div>
+
+        <!-- Technical Skills -->
+        <div style="margin-bottom: 11px;">
+          <div style="font-size: 9.5pt; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; letter-spacing: 0.5px;">Core Technical Competencies</div>
+          <div style="font-size: 9pt; color: #334155; line-height: 1.5;">
+            <strong>Data Analytics & BI:</strong> Power BI, DAX Measures, Power Query, Star Schema Data Modeling, KPI Dashboard Architecture, Tableau, Advanced Excel<br>
+            <strong>Programming & Databases:</strong> Python (Pandas, NumPy, scikit-learn), SQL (PostgreSQL, MySQL), KNIME Analytics Platform, R<br>
+            <strong>Analytical Focus:</strong> Statistical Analysis, Financial Expense Metrics, Predictive Machine Learning, ETL Workflow Automation
+          </div>
+        </div>
+
+        <!-- Professional Experience -->
+        <div style="margin-bottom: 11px;">
+          <div style="font-size: 9.5pt; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; letter-spacing: 0.5px;">Professional Experience</div>
+          
+          <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 9pt; color: #0f172a;">
+              <span>Vastu Housing Finance &mdash; Data Analyst</span>
+              <span>June 2025 &ndash; Present | Mumbai, India</span>
+            </div>
+            <ul style="margin: 3px 0 0 16px; padding: 0; font-size: 8.5pt;">
+              ${bulletsHtml}
+            </ul>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 9pt; color: #0f172a;">
+              <span>HDFC Asset Management Company (HDFC AMC) &mdash; Data Science Intern</span>
+              <span>Internship | Mumbai, India</span>
+            </div>
+            <ul style="margin: 3px 0 0 16px; padding: 0; font-size: 8.5pt;">
+              <li style="margin-bottom: 3px; color: #1e293b;">Conducted exploratory trend analysis and predictive modeling on financial expense datasets in Python and SQL.</li>
+              <li style="margin-bottom: 3px; color: #1e293b;">Built multi-year variance reporting models and Power BI visualization suites for operational expense analysis.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 9.5pt; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; letter-spacing: 0.5px;">Education</div>
+          
+          <div style="margin-bottom: 4px;">
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 9pt; color: #0f172a;">
+              <span>Master of Science in Data Science & Artificial Intelligence</span>
+              <span>Middlesex University Dubai</span>
+            </div>
+            <div style="font-size: 8.5pt; color: #475569;">Degree Completed (Awaiting Certificate) &bull; Advanced Machine Learning, Big Data Analytics, Neural Networks</div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 9pt; color: #0f172a;">
+              <span>Bachelor of Technology in Electronics & Telecommunication</span>
+              <span>CGPA: 8.86 / 10</span>
+            </div>
+            <div style="font-size: 8.5pt; color: #475569;">Thakur College of Engineering & Technology (TCET), Mumbai</div>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div>
+          <div style="font-size: 9.5pt; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; letter-spacing: 0.5px;">Key Certifications</div>
+          <div style="font-size: 8.5pt; color: #334155;">
+            &bull; <strong>IBM Data Science Professional Certificate</strong> &mdash; Coursera, 2025 &bull; <strong>Power BI Specialization</strong> &mdash; Coursera, 2024
+          </div>
+        </div>
+      </div>
+    `;
+
+    const container = document.getElementById('resumePdfContainer');
+    container.innerHTML = resumeHtml;
+    container.style.display = 'block';
+
+    const resumeEl = document.getElementById('atsResumeDoc');
+
+    if (window.html2pdf) {
+      const opt = {
+        margin: [6, 6, 6, 6],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(resumeEl).save();
+      container.style.display = 'none';
+      showToast(`✓ Downloaded ${filename}! Ready to upload.`);
+      saveToPipeline(jobId, 'Saved');
     } else {
-      logsEl.innerHTML += `<div class="log-line" style="color:#ef4444;">[NOTE] ${escapeHtml(data.error || 'Notice')}</div>`;
-      logsEl.innerHTML += `<div class="log-line text-cyan">👉 Click '🚀 Open Job Application Page' below to submit directly!</div>`;
+      const printWin = window.open('', '_blank');
+      printWin.document.write('<html><head><title>' + filename + '</title></head><body>' + resumeHtml + '</body></html>');
+      printWin.document.close();
+      printWin.print();
+      container.style.display = 'none';
+      showToast('✓ Opened printable resume PDF!');
     }
   } catch (err) {
-    logsEl.innerHTML += `<div class="log-line text-cyan">[READY] Candidate package prepared.</div>`;
-    logsEl.innerHTML += `<div class="log-line text-cyan">👉 Tap '🚀 Open Job Application Page' below to submit directly on your phone!</div>`;
+    showToast('Failed to generate resume PDF: ' + err.message);
+  } finally {
+    if (btnElement) {
+      btnElement.disabled = false;
+      btnElement.innerHTML = originalText || '📥 Tailored Resume (PDF)';
+    }
   }
 }
 
@@ -488,7 +578,7 @@ function copyCandidateDetails() {
     `GitHub: ${p.github || 'https://github.com/NandiniDevadiga'}`,
     `Current Role: ${p.currentTitle || 'Data Analyst'} at ${p.currentCompany || 'Vastu Housing Finance'}`,
     `Experience: 0.5+ years | Notice Period: 30 days (Negotiable)`,
-    `Current CTC: ${p.currentCtcLakhs || 4.8} LPA | Expected CTC: 7 - 8.5 LPA (Flexible / Open)`,
+    `Current CTC: 4.8 LPA | Expected CTC: 5 to 6 LPA (Flexible / Open)`,
     `Education: Master of Science in Data Science & AI (Middlesex University Dubai) | B.Tech EXTC (CGPA 8.86)`,
     `Key Skills: Power BI, DAX, SQL, Python (Pandas/NumPy), Star Schema, KPI Dashboards, ETL, Advanced Excel`
   ].join('\n');
@@ -498,14 +588,6 @@ function copyCandidateDetails() {
   }).catch(() => {
     showToast('Failed to copy text.');
   });
-}
-
-function markAssistantJobApplied() {
-  if (currentAssistantJob) {
-    saveToPipeline(currentAssistantJob.id, 'Applied');
-    showToast(`✓ Marked "${currentAssistantJob.title}" as Applied!`);
-    closeModal('assistantModal');
-  }
 }
 
 // Open AI Tailor Modal

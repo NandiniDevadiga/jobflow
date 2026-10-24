@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <!-- Background Glow FX -->
@@ -477,56 +478,8 @@
     </div>
   </div>
 
-  <!-- MODAL: PLAYWRIGHT BROWSER ASSISTANT RUNNER -->
-  <div id="assistantModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content modal-md">
-      <div class="modal-header">
-        <div>
-          <h3 class="modal-title">⚡ Playwright Auto-Fill Agent</h3>
-          <p class="modal-subtitle" id="assistantSubtitle">Launching browser automation...</p>
-        </div>
-        <button class="modal-close" onclick="closeModal('assistantModal')">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <div class="agent-activity-box">
-          <div class="terminal-header">
-            <div class="term-dots">
-              <span class="dot dot-red"></span>
-              <span class="dot dot-yellow"></span>
-              <span class="dot dot-green"></span>
-            </div>
-            <span class="term-title">Playwright Agent Log</span>
-          </div>
-          <div class="terminal-body" id="assistantLogs">
-            <div class="log-line text-cyan">[INIT] Initializing automation engine...</div>
-          </div>
-        </div>
-
-        <div class="automation-instruction-box">
-          <p><strong>💡 Mode: Smart Job Application Assistant</strong></p>
-          <p>Your candidate profile, contact details, and tailored responses are ready. Use the quick actions below to submit your application directly on your phone or computer.</p>
-        </div>
-
-        <div class="assistant-quick-actions" style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1rem;">
-          <a id="assistantDirectLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex:1; min-width:180px; text-align:center; text-decoration:none; padding:0.6rem 1rem; font-weight:600;">
-            🚀 Open Job Application Page
-          </a>
-          <button type="button" class="btn btn-secondary" onclick="copyCandidateDetails()" style="flex:1; min-width:140px;">
-            📋 Copy Profile Info
-          </button>
-          <button type="button" class="btn btn-secondary" id="assistantOpenTailorBtn" style="flex:1; min-width:140px;">
-            📝 AI Cover Letter
-          </button>
-        </div>
-      </div>
-
-      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
-        <button class="btn btn-secondary" id="assistantMarkAppliedBtn" onclick="markAssistantJobApplied()">✓ Mark as Applied</button>
-        <button class="btn btn-secondary" onclick="closeModal('assistantModal')">Done</button>
-      </div>
-    </div>
-  </div>
+  <!-- Hidden Container for High-Quality ATS Resume PDF Generation -->
+  <div id="resumePdfContainer" style="display:none;"></div>
 
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>

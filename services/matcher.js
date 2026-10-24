@@ -117,7 +117,7 @@ function generateScreeningAnswers(userProfile, job) {
     whyWorkHere: `I admire ${job.company}'s data-driven innovation and culture. The ${job.title} role directly aligns with my hands-on background in Power BI dashboard engineering, custom DAX measures, and Python/SQL analytics.`,
     noticePeriod: `${p.noticePeriodDays || 30} days (Standard 30 Days Notice / Negotiable)`,
     currentSalary: `${p.currentCtcLakhs || 4.8} LPA`,
-    expectedSalary: `${p.expectedCtcLakhs || 7} - 8.5 LPA (Flexible / Open to discussion based on standard industry benchmarks)`,
+    expectedSalary: `5 to 6 LPA (Flexible / Open to discussion based on standard industry benchmarks)`,
     currentLocation: p.location || 'Mumbai, India',
     highestEducation: 'Master of Science in Data Science and Artificial Intelligence (Middlesex University Dubai | Degree Completed, awaiting degree certificate)',
     relevantExperienceYears: 'Data Analyst at Vastu Housing Finance (6 months) + internship at HDFC AMC + MSc in Data Science & AI.'

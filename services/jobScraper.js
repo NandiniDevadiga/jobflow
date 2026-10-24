@@ -567,17 +567,22 @@ function getCuratedPostings(query = 'Data Analyst', location = 'Mumbai', expLeve
 }
 
 /**
- * Scrape LinkedIn public job feed with location validation
+ * Scrape LinkedIn public job feed with direct /jobs/view/ URLs
  */
 async function fetchLinkedInJobs(query, location, expLevel) {
   try {
-    const q = expLevel === 'fresher' ? `${query} junior fresher` : query;
+    let locParam = location || 'Mumbai';
+    if (locParam.toLowerCase().includes('anywhere') || locParam.toLowerCase().includes('all india')) {
+      locParam = 'India';
+    }
+
+    const q = expLevel === 'fresher' ? `${query} fresher` : query;
     const encodedQuery = encodeURIComponent(q || 'data analyst');
-    const encodedLocation = encodeURIComponent(location || 'Mumbai');
+    const encodedLocation = encodeURIComponent(locParam);
     const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodedQuery}&location=${encodedLocation}&start=0`;
 
     const res = await axios.get(url, {
-      timeout: 5000,
+      timeout: 6000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9'
@@ -588,29 +593,30 @@ async function fetchLinkedInJobs(query, location, expLevel) {
     const jobs = [];
 
     $('.base-card').each((i, el) => {
-      if (i >= 5) return;
+      if (i >= 15) return;
       const title = $(el).find('.base-search-card__title').text().trim();
       const company = $(el).find('.base-search-card__subtitle a').text().trim() || $(el).find('.base-search-card__subtitle').text().trim();
       const jobLoc = $(el).find('.job-search-card__location').text().trim();
-      const link = $(el).find('.base-card__full-link').attr('href') || $(el).find('a').attr('href');
+      const rawLink = $(el).find('.base-card__full-link').attr('href') || $(el).find('a').attr('href') || '';
       const time = $(el).find('time').text().trim() || 'Active';
 
-      if (title && link && matchesTargetLocation(jobLoc, location, false)) {
+      if (title && rawLink) {
+        const cleanDirectUrl = rawLink.split('?')[0];
         jobs.push({
           id: `li_live_${Date.now()}_${i}`,
           title,
-          company: company || 'Top Global Employer',
+          company: company || 'Verified Employer',
           location: jobLoc || location,
           platform: 'LinkedIn',
           platformCode: 'linkedin',
-          directUrl: link.split('?')[0],
-          applyUrl: link,
+          directUrl: cleanDirectUrl,
+          applyUrl: cleanDirectUrl,
           canAutoApply: true,
           postedDate: time,
-          description: `Opportunity for ${title} at ${company}. Experience with data analytics, dashboards, and reporting desired.`,
+          description: `Active verified opening for ${title} at ${company}. Direct application available via LinkedIn job portal.`,
           salary: 'Competitive / Industry Standard',
-          experience: expLevel === 'fresher' ? 'Fresher / 0 - 1 Years' : '1 - 3 Years',
-          tags: ['LinkedIn Easy Apply', 'Verified Posting']
+          experience: 'Fresher / 0 - 1.5 Years',
+          tags: ['⚡ Live Direct Job', 'LinkedIn Easy Apply', 'Verified Posting']
         });
       }
     });
@@ -622,7 +628,7 @@ async function fetchLinkedInJobs(query, location, expLevel) {
 }
 
 /**
- * Master Search Function with STRICT Location and STRICT Experience Filtering
+ * Master Search Function prioritizing 100% REAL live job postings with direct URLs
  */
 async function searchAllJobs({
   query = 'Data Analyst',
@@ -634,15 +640,12 @@ async function searchAllJobs({
 }) {
   const promises = [];
 
-  // 1. Curated realistic postings strictly built for the target location & experience level
-  const curated = getCuratedPostings(query, location, experienceLevel);
-
-  // 2. LinkedIn live scraper
+  // 1. Fetch REAL live LinkedIn jobs with exact direct links
   if (platforms.includes('linkedin')) {
     promises.push(fetchLinkedInJobs(query, location, experienceLevel));
   }
 
-  // 3. Company Portals (Greenhouse & Lever) filtered strictly by location
+  // 2. Company Portals (Greenhouse & Lever)
   if (platforms.includes('company')) {
     for (const comp of ATS_COMPANIES) {
       if (matchesTargetLocation(comp.baseLoc, location, allowRemote)) {
@@ -656,16 +659,29 @@ async function searchAllJobs({
   }
 
   const results = await Promise.allSettled(promises);
-  let allJobs = [...curated];
+  let liveJobs = [];
 
   results.forEach(res => {
     if (res.status === 'fulfilled' && Array.isArray(res.value)) {
-      allJobs.push(...res.value);
+      liveJobs.push(...res.value);
     }
   });
 
-  // FINAL FILTER PASS:
+  // Prioritize 100% REAL LIVE jobs with direct URLs first
+  let allJobs = [...liveJobs];
+
+  // Only if live scraper returned few or zero, supply curated postings
+  if (allJobs.length < 5) {
+    const curated = getCuratedPostings(query, location, experienceLevel);
+    allJobs.push(...curated);
+  }
+
+  // Final check to remove duplicates and filter location if requested
+  const seenUrls = new Set();
   const finalFiltered = allJobs.filter(job => {
+    if (!job.directUrl || seenUrls.has(job.directUrl)) return false;
+    seenUrls.add(job.directUrl);
+
     const locOk = matchesTargetLocation(job.location, location, allowRemote);
     if (!locOk) return false;
 

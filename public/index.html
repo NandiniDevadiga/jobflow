@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobFlow AI — Intelligent Job Aggregator & Auto-Apply Automation Hub</title>
+  <meta name="description" content="Automated multi-platform job scanner and AI-powered application copilot for LinkedIn, Naukri, Indeed, and Company ATS portals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow FX -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Top Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#brandGrad)"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="3" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="1" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">JobFlow <span class="gradient-text">AI</span></span>
+          <span class="brand-subtitle">Autonomous Cross-Portal Job Copilot</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-tab active" id="tabBtnRadar" onclick="switchTab('radar')" role="tab">
+          <span class="tab-icon">⚡</span> Job Radar
+        </button>
+        <button class="nav-tab" id="tabBtnPipeline" onclick="switchTab('pipeline')" role="tab">
+          <span class="tab-icon">📊</span> Pipeline (<span id="pipelineCountBadge">0</span>)
+        </button>
+        <button class="nav-tab" id="tabBtnProfile" onclick="switchTab('profile')" role="tab">
+          <span class="tab-icon">👤</span> Profile & Resume
+        </button>
+        <button class="nav-tab" id="tabBtnSettings" onclick="switchTab('settings')" role="tab">
+          <span class="tab-icon">⚙️</span> API & Portals
+        </button>
+      </nav>
+
+      <!-- System Status Indicator -->
+      <div class="nav-actions">
+        <div class="system-status-chip">
+          <span class="status-pulse"></span>
+          <span class="status-label">Engine Ready</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-wrapper">
+    <!-- TAB 1: JOB RADAR -->
+    <section id="tabRadar" class="tab-pane active">
+      <!-- Search & Preferences Header Card -->
+      <div class="search-hero-card">
+        <div class="search-header-row">
+          <div>
+            <h1 class="page-title">Cross-Platform Job Radar & Auto-Apply</h1>
+            <p class="page-desc">Scan LinkedIn, Naukri, Indeed, and Company ATS portals in real time with AI match scoring and 1-click browser auto-fill.</p>
+          </div>
+          <div class="quick-stats-pill">
+            <span class="stat-bubble"><strong id="statFound">0</strong> Available</span>
+            <span class="stat-divider">•</span>
+            <span class="stat-bubble text-emerald"><strong id="statHighMatch">0</strong> High Match</span>
+          </div>
+        </div>
+
+        <form id="jobSearchForm" class="search-form" onsubmit="handleSearch(event)">
+          <div class="search-inputs-grid search-inputs-grid-3col">
+            <div class="input-group">
+              <label for="searchQuery">Target Role / Keywords</label>
+              <div class="input-with-icon">
+                <span class="input-icon">💼</span>
+                <input type="text" id="searchQuery" placeholder="e.g. Data Analyst, BI Analyst" value="Data Analyst" required>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="searchLocation">Location / City</label>
+              <div class="input-with-icon">
+                <span class="input-icon">📍</span>
+                <input type="text" id="searchLocation" placeholder="e.g. Mumbai, India / Dubai, UAE" value="Mumbai, India" required>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="searchExperience">Experience Required</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🎓</span>
+                <select id="searchExperience" class="custom-select">
+                  <option value="fresher" selected>🎓 Fresher / Entry Level (0 - 1 Years)</option>
+                  <option value="junior">💼 Early Career (1 - 3 Years)</option>
+                  <option value="mid">🚀 Mid-Level (3 - 5 Years)</option>
+                  <option value="all">🌟 All Experience Levels</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Destination Presets & Remote Toggle -->
+          <div class="foreign-destinations-row">
+            <span class="preset-label">📍 Quick Locations:</span>
+            <div class="preset-chips">
+              <button type="button" class="preset-chip active" onclick="setQuickLocation('Mumbai, India', 'Data Analyst')">🇮🇳 Mumbai</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Bengaluru, India', 'Data Analyst')">🇮🇳 Bengaluru</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Netherlands', 'Data Analyst')">🇳🇱 Netherlands</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Singapore', 'Data Analyst')">🇸🇬 Singapore</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Spain', 'Data Analyst')">🇪🇸 Spain</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Italy', 'Data Analyst')">🇮🇹 Italy</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Germany', 'Data Analyst')">🇩🇪 Germany</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Dubai, UAE', 'Data Analyst')">🇦🇪 Dubai</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('London, United Kingdom', 'Data Analyst')">🇬🇧 London</button>
+              <button type="button" class="preset-chip" onclick="setQuickLocation('Remote Worldwide', 'Data Analyst')">🌐 Global Remote</button>
+            </div>
+
+            <div class="remote-toggle-box">
+              <label class="remote-toggle-label" title="When enabled, also matches Remote postings that allow your country">
+                <input type="checkbox" id="chkAllowRemote">
+                <span>Include Remote Postings</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Platform Selector Pills -->
+          <div class="platforms-selector-row">
+            <span class="selector-label">Target Portals:</span>
+            <div class="platform-checkboxes">
+              <label class="platform-pill active" id="chkLabelCompany">
+                <input type="checkbox" id="chkCompany" value="company" checked onchange="togglePillClass(this)">
+                <span class="pill-badge gh">ATS</span> Company Career Portals (Global & UAE)
+              </label>
+              <label class="platform-pill active" id="chkLabelLinkedIn">
+                <input type="checkbox" id="chkLinkedIn" value="linkedin" checked onchange="togglePillClass(this)">
+                <span class="pill-badge li">in</span> LinkedIn (Global & Local)
+              </label>
+              <label class="platform-pill active" id="chkLabelNaukri">
+                <input type="checkbox" id="chkNaukri" value="naukri" checked onchange="togglePillClass(this)">
+                <span class="pill-badge nk">N</span> Naukri & Gulf Portals
+              </label>
+              <label class="platform-pill active" id="chkLabelIndeed">
+                <input type="checkbox" id="chkIndeed" value="indeed" checked onchange="togglePillClass(this)">
+                <span class="pill-badge ind">ind</span> Indeed International
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary search-btn" id="searchBtn">
+              <span class="btn-spinner" id="searchSpinner" style="display:none;"></span>
+              <span class="btn-text" id="searchText">⚡ Scan & Match Jobs</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Feed Controls & Filter Row -->
+      <div class="feed-controls-row">
+        <div class="filter-chips" id="filterChips">
+          <button class="filter-chip active" onclick="filterJobs('all')">All Postings (<span id="countAll">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('foreign')">🌍 Foreign & Global (<span id="countForeign">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('high-match')">🔥 High Match >80% (<span id="countHighMatch">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('company')">Company ATS Portals (<span id="countCompany">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('linkedin')">LinkedIn (<span id="countLinkedIn">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('naukri')">Naukri & Gulf (<span id="countNaukri">0</span>)</button>
+          <button class="filter-chip" onclick="filterJobs('indeed')">Indeed (<span id="countIndeed">0</span>)</button>
+        </div>
+
+        <div class="feed-sort">
+          <label for="sortOrder">Sort by:</label>
+          <select id="sortOrder" onchange="renderJobs()">
+            <option value="matchDesc">Highest AI Match</option>
+            <option value="newest">Recently Posted</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live Job Stream Grid -->
+      <div id="jobStreamGrid" class="job-grid">
+        <!-- Rendered by app.js -->
+        <div class="empty-state-card">
+          <div class="empty-icon">🎯</div>
+          <h3>Ready to Discover & Auto-Apply</h3>
+          <p>Click "Scan & Match Jobs" above to fetch live openings across LinkedIn, Naukri, Indeed, and verified company career portals.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PIPELINE & KANBAN -->
+    <section id="tabPipeline" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Application Pipeline & Tracker</h2>
+          <p class="section-desc">Track your active job applications across every platform from submission to offer.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="openManualAddModal()">+ Add Custom Application</button>
+      </div>
+
+      <div class="kanban-board">
+        <!-- Column 1: Saved / Wishlist -->
+        <div class="kanban-column" id="colSaved">
+          <div class="kanban-column-header">
+            <span class="col-title"><span class="col-dot dot-cyan"></span> Saved / To Apply</span>
+            <span class="col-count" id="countColSaved">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="cardsSaved" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Saved')"></div>
+        </div>
+
+        <!-- Column 2: Applied -->
+        <div class="kanban-column" id="colApplied">
+          <div class="kanban-column-header">
+            <span class="col-title"><span class="col-dot dot-blue"></span> Applied</span>
+            <span class="col-count" id="countColApplied">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="cardsApplied" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Applied')"></div>
+        </div>
+
+        <!-- Column 3: Interviewing -->
+        <div class="kanban-column" id="colInterview">
+          <div class="kanban-column-header">
+            <span class="col-title"><span class="col-dot dot-amber"></span> Interview</span>
+            <span class="col-count" id="countColInterview">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="cardsInterview" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Interview')"></div>
+        </div>
+
+        <!-- Column 4: Offer -->
+        <div class="kanban-column" id="colOffer">
+          <div class="kanban-column-header">
+            <span class="col-title"><span class="col-dot dot-emerald"></span> Offer / Next Steps</span>
+            <span class="col-count" id="countColOffer">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="cardsOffer" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Offer')"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PROFILE & RESUME -->
+    <section id="tabProfile" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Candidate Profile & Auto-Fill Vault</h2>
+          <p class="section-desc">These details will be automatically filled into job applications by the Playwright browser assistant and used for AI match scoring.</p>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile Details</button>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Personal Info Card -->
+        <div class="card profile-card">
+          <h3 class="card-title">Personal Information & International Mobility</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profFullName">Full Name</label>
+              <input type="text" id="profFullName" placeholder="e.g. Nandini Devadiga">
+            </div>
+            <div class="form-field">
+              <label for="profEmail">Email Address</label>
+              <input type="email" id="profEmail" placeholder="nandiniddd16@gmail.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profPhone">Phone Number</label>
+              <input type="tel" id="profPhone" placeholder="+91 9372568518">
+            </div>
+            <div class="form-field">
+              <label for="profLocation">Current Location</label>
+              <input type="text" id="profLocation" placeholder="Mumbai, India">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profLinkedIn">LinkedIn Profile URL</label>
+              <input type="url" id="profLinkedIn" placeholder="https://linkedin.com">
+            </div>
+            <div class="form-field">
+              <label for="profGithub">GitHub Profile URL</label>
+              <input type="url" id="profGithub" placeholder="https://github.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profPortfolio">Portfolio / Dashboards Link</label>
+              <input type="url" id="profPortfolio" placeholder="https://myportfolio.dev">
+            </div>
+            <div class="form-field">
+              <label for="profNotice">Notice Period (Days)</label>
+              <input type="number" id="profNotice" placeholder="30">
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Experience & Education Card -->
+        <div class="card profile-card">
+          <h3 class="card-title">Analytics Career, Education & Skills</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profCompany">Current Company / Org</label>
+              <input type="text" id="profCompany" placeholder="Vastu HFC">
+            </div>
+            <div class="form-field">
+              <label for="profTitle">Current Role</label>
+              <input type="text" id="profTitle" placeholder="Data Analyst">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="profExpYears">Years of Experience</label>
+              <input type="number" id="profExpYears" placeholder="1.5" step="0.5">
+            </div>
+            <div class="form-field">
+              <label for="profExpectedCtc">Expected CTC / Comp (LPA or Foreign)</label>
+              <input type="text" id="profExpectedCtc" placeholder="14 LPA or 18,000 AED/mo">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="profEducation">Higher Education & University</label>
+            <input type="text" id="profEducation" placeholder="MSc in Data Science & AI (Middlesex University Dubai) | B.Tech EXTC">
+          </div>
+
+          <div class="form-field">
+            <label for="profSkills">Skills (Used for AI Match %)</label>
+            <input type="text" id="profSkills" placeholder="Python, SQL, Power BI, DAX, Pandas, NumPy, KNIME, scikit-learn, Machine Learning">
+          </div>
+
+          <div class="form-field">
+            <label for="profCertifications">Industry Certifications</label>
+            <input type="text" id="profCertifications" placeholder="IBM Data Science, Power BI Specialization, Complete Data Analyst Bootcamp">
+          </div>
+
+          <div class="form-field">
+            <label for="profSummary">Professional Summary / Bio</label>
+            <textarea id="profSummary" rows="3" placeholder="Brief summary of your background and achievements..."></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: API & SETTINGS -->
+    <section id="tabSettings" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">API Keys & Portal Integration</h2>
+          <p class="section-desc">Configure external APIs (RapidAPI / JSearch, Gemini, Adzuna) for enhanced job aggregation capabilities.</p>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 Save Settings</button>
+      </div>
+
+      <div class="settings-grid">
+        <div class="card settings-card">
+          <h3 class="card-title">RapidAPI / JSearch Integration (Optional)</h3>
+          <p class="card-desc">With a free RapidAPI JSearch key, you can search real-time live job postings aggregated across LinkedIn, Indeed, Glassdoor, and ZipRecruiter with a single API call.</p>
+          <div class="form-field">
+            <label for="cfgRapidApiKey">RapidAPI Key</label>
+            <input type="password" id="cfgRapidApiKey" placeholder="Enter your RapidAPI Key (optional)">
+            <small class="field-hint">Get a free key from <a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" target="_blank" class="accent-link">rapidapi.com/jsearch</a></small>
+          </div>
+        </div>
+
+        <div class="card settings-card">
+          <h3 class="card-title">⏰ Daily Email Job Digest & Alerts</h3>
+          <p class="card-desc">JobFlow AI automatically refreshes job listings each time you search or filter, and runs an automated scanner every day at <strong>09:00 AM</strong> to send curated Data Analyst opportunities matching your profile directly to your inbox.</p>
+          <div class="form-field">
+            <label for="cfgEmailRecipient">Alert Email Address</label>
+            <input type="email" id="cfgEmailRecipient" placeholder="nandiniddd16@gmail.com" value="nandiniddd16@gmail.com">
+            <small class="field-hint">All daily matching openings (Mumbai, Netherlands, Singapore, Spain, Italy, Germany) will be delivered here.</small>
+          </div>
+          <div class="form-row" style="margin-top: 12px; align-items: center; justify-content: space-between;">
+            <label class="remote-toggle-label" style="margin: 0;">
+              <input type="checkbox" id="cfgEmailEnabled" checked>
+              <span>Enable 9:00 AM Daily Email Reminder</span>
+            </label>
+            <button type="button" class="btn btn-sm btn-primary" id="btnSendTestEmail" onclick="sendTestEmail()">
+              📨 Send Test Digest Now
+            </button>
+          </div>
+          <div id="emailTestFeedback" style="margin-top: 12px; display: none;"></div>
+        </div>
+
+        <div class="card settings-card">
+          <h3 class="card-title">Direct ATS Integration Status</h3>
+          <p class="card-desc">JobFlow AI comes pre-configured with direct public ATS API connectors for leading tech employers.</p>
+          <div class="ats-status-list">
+            <div class="ats-item">
+              <span class="ats-name">Greenhouse ATS Connector</span>
+              <span class="status-badge badge-active">Live & Ready</span>
+            </div>
+            <div class="ats-item">
+              <span class="ats-name">Lever ATS Connector</span>
+              <span class="status-badge badge-active">Live & Ready</span>
+            </div>
+            <div class="ats-item">
+              <span class="ats-name">Playwright Microsoft Edge Engine</span>
+              <span class="status-badge badge-active">Active on Windows</span>
+            </div>
+            <div class="ats-item">
+              <span class="ats-name">Daily 9 AM Cron Scheduler</span>
+              <span class="status-badge badge-active">Active (node-cron)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: AI COVER LETTER & SCREENING TAILOR -->
+  <div id="tailorModal" class="modal-overlay" style="display:none;" onclick="closeModalOnBackdrop(event, 'tailorModal')">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="tailorModalTitle">AI Application Package</h3>
+          <p class="modal-subtitle" id="tailorModalCompany">Tailored for Job</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('tailorModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Match Analysis Snapshot -->
+        <div class="match-snapshot-box" id="matchSnapshotBox">
+          <div class="match-score-badge" id="modalMatchScore">92% Match</div>
+          <div class="match-skills-breakdown">
+            <div class="skill-row"><strong>Matched Skills:</strong> <span id="modalMatchedSkills">React, Node.js, SQL</span></div>
+            <div class="skill-row"><strong>Missing Keywords:</strong> <span id="modalMissingSkills">Docker, Kubernetes</span></div>
+          </div>
+        </div>
+
+        <!-- Cover Letter Tab/Section -->
+        <div class="modal-section">
+          <div class="section-title-row">
+            <h4>📄 Tailored Cover Letter</h4>
+            <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('modalCoverLetterText', 'Cover letter copied!')">📋 Copy Letter</button>
+          </div>
+          <textarea id="modalCoverLetterText" class="code-textarea" rows="8"></textarea>
+        </div>
+
+        <!-- Screening Answers Section -->
+        <div class="modal-section">
+          <h4>💬 Pre-Generated Screening Answers</h4>
+          <div class="qa-grid" id="modalQaGrid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('tailorModal')">Close</button>
+        <button class="btn btn-primary" id="modalDirectApplyBtn" onclick="openDirectJobUrl()">🌐 Open Job Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PLAYWRIGHT BROWSER ASSISTANT RUNNER -->
+  <div id="assistantModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">⚡ Playwright Auto-Fill Agent</h3>
+          <p class="modal-subtitle" id="assistantSubtitle">Launching browser automation...</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('assistantModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="agent-activity-box">
+          <div class="terminal-header">
+            <div class="term-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <span class="term-title">Playwright Agent Log</span>
+          </div>
+          <div class="terminal-body" id="assistantLogs">
+            <div class="log-line text-cyan">[INIT] Initializing automation engine...</div>
+          </div>
+        </div>
+
+        <div class="automation-instruction-box">
+          <p><strong>💡 Mode: Interactive Review & Assist</strong></p>
+          <p>A browser window will open, navigate to the target job, and auto-populate your contact details, portfolio links, and career information. You can review the details on screen and make final confirmation.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('assistantModal')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

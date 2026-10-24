@@ -1,0 +1,80 @@
+{
+  "personal": {
+    "fullName": "Nandini Devadiga",
+    "email": "nandiniddd16@gmail.com",
+    "phone": "+91 9372568518",
+    "location": "Mumbai, India",
+    "linkedIn": "https://www.linkedin.com/in/nandini-deepa",
+    "github": "https://github.com/NandiniDevadiga",
+    "portfolio": "",
+    "currentCompany": "Vastu Housing Finance",
+    "currentTitle": "Data Analyst",
+    "yearsOfExperience": 0.5,
+    "noticePeriodDays": 15,
+    "currentCtcLakhs": 6,
+    "expectedCtcLakhs": 9
+  },
+  "preferences": {
+    "targetRoles": [
+      "Data Analyst",
+      "Business Intelligence Analyst",
+      "Junior Data Analyst",
+      "Power BI Developer",
+      "Analytics Specialist",
+      "Junior Data Scientist"
+    ],
+    "targetLocations": [
+      "Mumbai, India",
+      "Netherlands",
+      "Singapore",
+      "Spain",
+      "Italy",
+      "Germany",
+      "Dubai, United Arab Emirates",
+      "Remote Worldwide",
+      "London, United Kingdom"
+    ],
+    "jobType": "Full-time / Entry Level / Graduate",
+    "workplaceType": "On-site, Hybrid, or Remote",
+    "experienceLevel": "fresher"
+  },
+  "skills": [
+    "Python",
+    "SQL",
+    "Power BI",
+    "DAX",
+    "Power Query",
+    "Pandas",
+    "NumPy",
+    "R",
+    "KNIME",
+    "scikit-learn",
+    "Machine Learning",
+    "Data Modeling (Star Schema)",
+    "KPI Dashboards",
+    "Microsoft Excel",
+    "Business Intelligence",
+    "Statistical Analysis",
+    "Data Visualization"
+  ],
+  "experienceSummary": "Data Analyst with 2 months at Vastu Housing Finance and internship at HDFC AMC, holding an MSc in Data Science & Artificial Intelligence from Middlesex University Dubai (Degree completed). Experienced in executive Power BI dashboard engineering, custom DAX measures, automated SQL workflows in KNIME, and machine learning models in Python.",
+  "education": "Master of Science in Data Science and Artificial Intelligence (Middlesex University Dubai | Degree Completed, awaiting degree certificate) | Bachelor of Technology in Electronics & Telecommunication (Thakur College of Engineering & Technology | CGPA: 8.86/10)",
+  "certifications": [
+    "IBM Data Science Professional Certificate | Coursera, 2025",
+    "Power BI Specialization | Coursera, 2024",
+    "The Data Analyst Course: Complete Data Analyst Bootcamp | Udemy, 2024",
+    "Data Science and Analytics | NASSCOM, 2023"
+  ],
+  "languages": ["English", "Hindi", "Tulu", "Marathi"],
+  "emailAlerts": {
+    "enabled": true,
+    "recipient": "nandiniddd16@gmail.com",
+    "scheduleHour": 9,
+    "scheduleMinute": 0,
+    "smtpUser": "",
+    "smtpPass": ""
+  },
+  "apiKeys": {
+    "rapidApiKey": ""
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "app_1792818079028",
+    "jobId": "li_1792817938714_1",
+    "title": "Data Analyst - Power BI & Tableau",
+    "company": "Dubai Sotheby's International Realty",
+    "platform": "LinkedIn",
+    "location": "Dubai, United Arab Emirates",
+    "appliedDate": "2026-10-24",
+    "status": "Applied",
+    "directUrl": "https://ae.linkedin.com/jobs/view/data-analyst-power-bi-tableau-at-dubai-sotheby-s-international-realty-4480060147",
+    "notes": "Discovered with 67% AI match score."
+  },
+  {
+    "id": "app_sample_1",
+    "jobId": "sample_gh_1",
+    "title": "Senior Full Stack Engineer",
+    "company": "Stripe",
+    "platform": "Company Portal (Greenhouse)",
+    "location": "Remote / Bengaluru",
+    "appliedDate": "2026-10-22",
+    "status": "Interview",
+    "directUrl": "https://stripe.com/jobs",
+    "notes": "Completed initial screening round, waiting for technical discussion."
+  },
+  {
+    "id": "app_sample_2",
+    "jobId": "sample_li_1",
+    "title": "Backend Developer (Node.js/Python)",
+    "company": "Razorpay",
+    "platform": "LinkedIn",
+    "location": "Bengaluru, India",
+    "appliedDate": "2026-10-23",
+    "status": "Applied",
+    "directUrl": "https://www.linkedin.com/jobs",
+    "notes": "Applied via LinkedIn Easy Apply with custom cover letter."
+  }
+]

@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const { searchAllJobs } = require('./services/jobScraper');
 const { calculateJobMatch, generateCoverLetter, generateScreeningAnswers, generateTailoredResume } = require('./services/matcher');
+const { createTailoredPdfResume } = require('./services/pdfGenerator');
 const { launchBrowserAssistant } = require('./services/automation');
 const { sendJobDigestEmail, initScheduler } = require('./services/emailService');
 
@@ -121,6 +122,31 @@ app.post('/api/jobs/tailor', (req, res) => {
       matchAnalysis
     });
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Download Tailored ATS Resume PDF
+app.post('/api/resume/download-pdf', async (req, res) => {
+  try {
+    const { job } = req.body;
+    const profile = readJson(PROFILE_FILE, {});
+    
+    if (!job) {
+      return res.status(400).json({ success: false, error: 'Job details required' });
+    }
+
+    const tailored = generateTailoredResume(profile, job);
+    const pdfBuffer = await createTailoredPdfResume({ profile, job, tailored });
+
+    const safeCompany = (job.company || 'Job').replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `Nandini_Devadiga_Resume_${safeCompany}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error('PDF generation error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
